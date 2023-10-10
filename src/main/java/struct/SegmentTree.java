@@ -2,9 +2,9 @@ package struct;
 
 public class SegmentTree {
 
-    private int[] tree;
+    private final int[] tree;
 
-    private int[] mark;
+    private final int[] mark;
 
     public SegmentTree(int[] nums) {
         tree = new int[nums.length * 4];
@@ -79,8 +79,12 @@ public class SegmentTree {
         if (mark[p] != 0 && s != t) {
             markDownPush(s, t, mid, p);
         }
-        if (l <= mid) update(l, r, c, s, mid, p * 2 + 1);
-        if (r > mid) update(l, r, c, mid + 1, t, p * 2 + 2);
+        if (l <= mid) {
+            update(l, r, c, s, mid, p * 2 + 1);
+        }
+        if (r > mid) {
+            update(l, r, c, mid + 1, t, p * 2 + 2);
+        }
         tree[p] = tree[p * 2 + 1] + tree[p * 2 + 2];
     }
 
@@ -88,10 +92,10 @@ public class SegmentTree {
     public static void main(String[] args) {
         SegmentTree segmentTree = new SegmentTree(new int[]{10, 11, 12, 13, 14});
         int sum = segmentTree.getSum(0, 4, 0, 4, 0);
-        System.out.println(sum);
-        segmentTree.update(0,4,1,0,4,0);
+//        System.out.println(sum);
+        segmentTree.update(0, 4, 1, 0, 4, 0);
         sum = segmentTree.getSum(0, 4, 0, 4, 0);
-        System.out.println(sum);
+//        System.out.println(sum);
     }
 
 }
