@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 最长前缀实现 KMP 算法
+ *
  * @author sakura
  * @version KMPMatch.java, v 0.1 2023年10月10日 10:57 sakura
  */

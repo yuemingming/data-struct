@@ -4,37 +4,89 @@
  */
 package org.example;
 
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * @author sakura
  * @version Solution.java, v 0.1 2023年09月05日 20:59 sakura
  */
 class Solution {
-    public int minNumberOfSemesters(int n, int[][] relations, int k) {
-        int[] dp = new int[1 << n];
-        Arrays.fill(dp, Integer.MAX_VALUE);
-        int[] need = new int[1 << n];
-        for (int[] edge : relations) {
-            need[(1 << (edge[1] - 1))] |= 1 << (edge[0] - 1);
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int[] nums = new int[]{1,2,3,4,5};
+        System.out.println(solution.maximumStrongPairXor(nums));
+    }
+
+    static class TrieNode {
+        TrieNode[] children;
+
+        int cnt;
+
+
+        TrieNode() {
+            children = new TrieNode[2];
         }
-        dp[0] = 0;
-        for (int i = 1; i < (1 << n); ++i) {
-            need[i] = need[i & (i - 1)] | need[i & (-i)];
-            if ((need[i] | i) != i) { // i 中有任意一门课程的前置课程没有完成学习
-                continue;
+    }
+
+    static class Tree {
+        private final static int MAX_BIT = 31;
+        TrieNode root;
+
+        Tree() {
+            root = new TrieNode();
+        }
+
+        public void add(int num) {
+            TrieNode cur = root;
+            for (int i = MAX_BIT; i >= 0; i--) {
+                int bit = (num >> i) & 1;
+                if (cur.children[bit] == null) {
+                    cur.children[bit] = new TrieNode();
+                }
+                cur = cur.children[bit];
+                cur.cnt++;
             }
-            int valid = i ^ need[i]; // 当前学期可以进行学习的课程集合
-            if (Integer.bitCount(valid) <= k) { // 如果个数小于 k，则可以全部学习，不再枚举子集
-                dp[i] = Math.min(dp[i], dp[i ^ valid] + 1);
-            } else { // 否则枚举当前学期需要进行学习的课程集合
-                for (int sub = valid; sub > 0; sub = (sub - 1) & valid) {
-                    if (Integer.bitCount(sub) <= k) {
-                        dp[i] = Math.min(dp[i], dp[i ^ sub] + 1);
-                    }
+        }
+
+        public void remove(int num) {
+            TrieNode cur = root;
+            for (int i = MAX_BIT; i >= 0; i--) {
+                int bit = (num >> i) & 1;
+                cur.cnt--;
+                cur = cur.children[bit];
+            }
+        }
+
+        public int maxXor(int num) {
+            TrieNode cur = root;
+            int xor = 0;
+            for (int i = MAX_BIT; i >= 0; i--) {
+                int bit = (num >> i) & 1;
+                if (cur.children[bit ^ 1] != null && cur.children[bit ^ 1].cnt > 0) {
+                    xor += (1 << i);
+                    cur = cur.children[bit ^ 1];
+                } else {
+                    cur = cur.children[bit];
                 }
             }
+            return xor;
         }
-        return dp[(1 << n) - 1];
+    }
+
+    public int maximumStrongPairXor(int[] nums) {
+        Tree tree = new Tree();
+        Arrays.sort(nums);
+        int right = 0;
+        int res = 0;
+        for (int num : nums) {
+            while (right < nums.length && nums[right] <= 2 * num) {
+                tree.add(nums[right]);
+                right++;
+            }
+            res = Math.max(res, tree.maxXor(num));
+            tree.remove(num);
+        }
+        return res;
     }
 }

@@ -4,13 +4,12 @@
  */
 package str;
 
-import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 维护字符串区间哈希值
  * @author sakura
  * @version HashMatch.java, v 0.1 2023年10月10日 10:44 sakura
  */
-@Slf4j
 public class HashMatch {
     int b = 31;
     long m = 1000000007;
