@@ -11,82 +11,48 @@ import java.util.Arrays;
  * @version Solution.java, v 0.1 2023年09月05日 20:59 sakura
  */
 class Solution {
+    public long minimumCost(String source, String target, char[] original, char[] changed, int[] cost) {
+        int[][] graph = new int[26][26];
+        for (int[] ints : graph) {
+            Arrays.fill(ints, Integer.MAX_VALUE / 2);
+        }
+        for (int i = 0; i < 26; i++) {
+            graph[i][i] = 0;
+        }
+        for (int i = 0; i < original.length; i++) {
+            graph[original[i] - 'a'][changed[i] - 'a'] = Math.min(graph[original[i] - 'a'][changed[i] - 'a'], cost[i]);
+        }
+        int[][] minDistance = minDistanceWithN3(graph);
+        long ans = 0;
+        int m = source.length();
+        for (int i = 0; i < m; i++) {
+            long cur = minDistance[source.charAt(i) - 'a'][target.charAt(i) - 'a'];
+            if (cur == Integer.MAX_VALUE / 2) {
+                return -1;
+            }
+            ans += cur;
+        }
+        return ans;
+    }
+
+    public static int[][] minDistanceWithN3(int[][] graph) {
+        int[][][] minDistance = new int[graph.length][graph.length][graph.length];
+        for (int i = 0; i < graph.length; i++) {
+            System.arraycopy(graph[i], 0, minDistance[0][i], 0, graph.length);
+        }
+        for (int k = 0; k < graph.length; k++) {
+            for (int i = 0; i < graph.length; i++) {
+                for (int j = 0; j < graph.length; j++) {
+                    minDistance[k][i][j] = Math.min(minDistance[k - 1][i][j],
+                            minDistance[k - 1][i][k] + minDistance[k - 1][k][j]);
+                }
+            }
+        }
+        return minDistance[graph.length - 1];
+    }
 
     public static void main(String[] args) {
         Solution solution = new Solution();
-        int[] nums = new int[]{1,2,3,4,5};
-        System.out.println(solution.maximumStrongPairXor(nums));
-    }
-
-    static class TrieNode {
-        TrieNode[] children;
-
-        int cnt;
-
-
-        TrieNode() {
-            children = new TrieNode[2];
-        }
-    }
-
-    static class Tree {
-        private final static int MAX_BIT = 31;
-        TrieNode root;
-
-        Tree() {
-            root = new TrieNode();
-        }
-
-        public void add(int num) {
-            TrieNode cur = root;
-            for (int i = MAX_BIT; i >= 0; i--) {
-                int bit = (num >> i) & 1;
-                if (cur.children[bit] == null) {
-                    cur.children[bit] = new TrieNode();
-                }
-                cur = cur.children[bit];
-                cur.cnt++;
-            }
-        }
-
-        public void remove(int num) {
-            TrieNode cur = root;
-            for (int i = MAX_BIT; i >= 0; i--) {
-                int bit = (num >> i) & 1;
-                cur.cnt--;
-                cur = cur.children[bit];
-            }
-        }
-
-        public int maxXor(int num) {
-            TrieNode cur = root;
-            int xor = 0;
-            for (int i = MAX_BIT; i >= 0; i--) {
-                int bit = (num >> i) & 1;
-                if (cur.children[bit ^ 1] != null && cur.children[bit ^ 1].cnt > 0) {
-                    xor += (1 << i);
-                    cur = cur.children[bit ^ 1];
-                } else {
-                    cur = cur.children[bit];
-                }
-            }
-            return xor;
-        }
-    }
-
-    public int maximumStrongPairXor(int[] nums) {
-        Tree tree = new Tree();
-        Arrays.sort(nums);
-        int right = 0;
-        int res = 0;
-        for (int num : nums) {
-            while (right < nums.length && nums[right] <= 2 * num) {
-                tree.add(nums[right]);
-                right++;
-            }
-            res = Math.max(res, tree.maxXor(num));
-            tree.remove(num);
-        }
-        return res;
+        System.out.println(solution.minimumCost("abcd", "acbe", new char[]{'a','b','c','c','e','d'}, new char[]{'b','c','b','e','b','e'}, new int[]{2,5,5,1,2,20}));
     }
 }
